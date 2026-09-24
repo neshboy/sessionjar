@@ -1,0 +1,43 @@
+{
+  "name": "sessionjar",
+  "version": "0.1.0",
+  "description": "Safely hand your OWN already-authenticated browser session to an AI agent for browser automation, without sharing live credentials or allowing silent destructive actions.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "sessionjar": "./bin/sessionjar.mjs"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "cli": "tsx src/cli.ts"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "playwright": "^1.47.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.5.0",
+    "vitest": "^2.1.0"
+  },
+  "keywords": [
+    "playwright",
+    "browser-automation",
+    "ai-agent",
+    "safety",
+    "session"
+  ]
+}

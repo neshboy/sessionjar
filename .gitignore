@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Playwright browser download cache and test artifacts
+.playwright-browsers/
+playwright-report/
+test-results/
+blob-report/
+playwright/.cache/
+
+# Exported session state files (may contain real cookies/auth tokens - NEVER commit these)
+*.storageState.json
+storage-state*.json
+*.session.json
+sessions/
+*.har
+
+# Env / secrets
+.env
+.env.*
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Coverage
+coverage/
