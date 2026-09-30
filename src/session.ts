@@ -216,27 +216,36 @@ export class GuardedPage {
     opts?: { timeout?: number; force?: boolean; button?: "left" | "right" | "middle"; clickCount?: number },
   ): Promise<void> {
     const locator = this.raw.locator(selector).first();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const signal: ElementSignal = await locator.evaluate((el: any) => {
-      const attr = (name: string) => (el.getAttribute ? el.getAttribute(name) ?? "" : "");
-      return {
-        tagName: el.tagName,
-        type: attr("type"),
-        role: attr("role"),
-        text: (el.innerText ?? el.value ?? "").trim(),
-        ariaLabel: attr("aria-label"),
-        inForm: !!(el.closest && el.closest("form")),
-        href: attr("href"),
-      };
-    });
+    // Resolve a single ElementHandle up front and both inspect and click that
+    // exact handle, so the element that was checked is guaranteed to be the
+    // same element that gets clicked (no check-then-act gap if the page swaps
+    // the element under this selector between the two steps).
+    const handle = await locator.elementHandle(opts?.timeout !== undefined ? { timeout: opts.timeout } : undefined);
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const signal: ElementSignal = await handle.evaluate((el: any) => {
+        const attr = (name: string) => (el.getAttribute ? el.getAttribute(name) ?? "" : "");
+        return {
+          tagName: el.tagName,
+          type: attr("type"),
+          role: attr("role"),
+          text: (el.innerText || el.value || "").trim(),
+          ariaLabel: attr("aria-label"),
+          inForm: !!(el.closest && el.closest("form")),
+          href: attr("href"),
+        };
+      });
 
-    if (!this.options.allowMutations && looksLikeMutatingElement(signal)) {
-      const detail = `${selector} -> ${describeMutationReason(signal)}`;
-      this.options.onBlocked?.({ kind: "click", detail, selector });
-      throw new SessionJarBlockedError("click", detail);
+      if (!this.options.allowMutations && looksLikeMutatingElement(signal)) {
+        const detail = `${selector} -> ${describeMutationReason(signal)}`;
+        this.options.onBlocked?.({ kind: "click", detail, selector });
+        throw new SessionJarBlockedError("click", detail);
+      }
+
+      await handle.click(opts);
+    } finally {
+      await handle.dispose();
     }
-
-    await this.raw.click(selector, opts);
   }
 
   async fill(selector: string, value: string, opts?: { timeout?: number; force?: boolean }): Promise<void> {
