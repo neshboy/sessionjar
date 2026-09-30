@@ -102,7 +102,13 @@ async function runScript(args: string[]): Promise<number> {
     allowMutations,
     headless: headless ?? true,
     onBlocked: logBlocked,
-    showBanner: true,
+    // `run` is scripted/non-interactive: the real guard here is
+    // GuardedPage.click()'s Playwright-level check. The injected on-page
+    // banner + DOM click listener is only meaningful for a human watching
+    // `sessionjar open`'s visible window -- installing it here would also
+    // silently intercept real clicks issued via `page.raw.click()`, which
+    // the README documents as bypassing the click guard.
+    showBanner: false,
   });
 
   try {
